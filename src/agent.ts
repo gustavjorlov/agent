@@ -116,7 +116,7 @@ export class Agent {
   }
 
   private async executeTool(
-    block: any
+    block: Anthropic.Messages.ToolUseBlock
   ): Promise<{ result: string; isError: boolean }> {
     // Locate registered tool by name
     const tool = this.tools.find((t) => t.name === block.name);
