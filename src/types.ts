@@ -58,3 +58,14 @@ export const RunShellCommandInputSchema = z.object({
   args: z.string().optional().describe('Optional space-separated arguments passed to the command')
 });
 export type RunShellCommandInput = z.infer<typeof RunShellCommandInputSchema>;
+
+// create_file tool input: path + content + optional overwrite flag (default false)
+export const CreateFileInputSchema = z.object({
+  path: z.string().min(1).describe('The path of the file to create'),
+  content: z.string().default('').describe('The text content to write into the new file'),
+  overwrite: z
+    .boolean()
+    .optional()
+    .describe('If true and file exists, overwrite it. Default: false (error if exists).')
+});
+export type CreateFileInput = z.infer<typeof CreateFileInputSchema>;

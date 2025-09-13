@@ -9,6 +9,7 @@ import { z } from "zod";
 import { readFileTool } from "./tools/readFileTool.js";
 import { listFilesTool } from "./tools/listFilesTool.js";
 import { editFileTool } from "./tools/editFileTool.js";
+import { createFileTool } from "./tools/createFileTool.js";
 import { webSearchTool } from "./tools/webSearchTool.js";
 import { runShellCommandTool } from "./tools/runShellCommandTool.js";
 import { Tool } from "./tool.js";
@@ -44,6 +45,7 @@ export const defaultTools: Tool[] = [
   readFileTool,
   listFilesTool,
   editFileTool,
+  createFileTool,
   webSearchTool,
   runShellCommandTool,
 ];
