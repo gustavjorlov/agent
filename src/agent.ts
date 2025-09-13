@@ -36,17 +36,17 @@ export class Agent {
   }
 
   async run() {
-  /**
-   * Main interactive loop:
-   * 1. Optionally read user input (unless we're in a tool-execution follow up)
-   * 2. Send full conversation + tool defs to Anthropic
-   * 3. Stream over returned content blocks
-   *    - Print text blocks
-   *    - Accumulate tool_use blocks, execute them
-   * 4. If tools were used, append their tool_result blocks as a synthetic user message
-   *    and immediately iterate WITHOUT reading new user input (model gets results first)
-   * 5. If no tools were used, go back to reading user input.
-   */
+    /**
+     * Main interactive loop:
+     * 1. Optionally read user input (unless we're in a tool-execution follow up)
+     * 2. Send full conversation + tool defs to Anthropic
+     * 3. Stream over returned content blocks
+     *    - Print text blocks
+     *    - Accumulate tool_use blocks, execute them
+     * 4. If tools were used, append their tool_result blocks as a synthetic user message
+     *    and immediately iterate WITHOUT reading new user input (model gets results first)
+     * 5. If no tools were used, go back to reading user input.
+     */
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
