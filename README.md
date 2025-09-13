@@ -1,6 +1,7 @@
 # Code Editing Agent (TypeScript)
 
 Coding agent that doesn't stop and ask for permissions, it goes on until the task is done 😎
+
 Implements:
 - Chat loop with Claude
 - Tool definitions sent via Messages API
