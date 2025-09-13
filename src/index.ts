@@ -1,3 +1,6 @@
+// index.ts
+// Entry point: loads env, constructs Agent with configured model & runs loop.
+// Mirrors the Go main.go in the article.
 import 'dotenv/config';
 import { Agent } from './agent.js';
 

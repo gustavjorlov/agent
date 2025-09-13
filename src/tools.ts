@@ -1,3 +1,10 @@
+// tools.ts
+// Implements the tool abstraction & concrete tools translating the Go article's
+// read_file, list_files, and edit_file examples into TypeScript. Each Tool:
+//  - Exposes metadata (name, description, zod schema)
+//  - Provides an execute() function returning a string result
+// We also supply a minimal zod->JSON schema transformer sufficient for Anthropic's
+// tool schema (only simple string props used here).
 import fs from 'node:fs';
 import path from 'node:path';
 import { z } from 'zod';
@@ -11,7 +18,8 @@ export interface Tool<InputSchema extends z.ZodTypeAny = any> {
 }
 
 function jsonSchemaFromZod(schema: z.ZodTypeAny): any {
-  // Minimal conversion for object properties only (enough for this demo)
+  // Minimal conversion for object properties only (demo scope):
+  // We assume all fields map to type string and copy description.
   if (schema instanceof z.ZodObject) {
     const shape: Record<string, z.ZodTypeAny> = (schema as any)._def.shape();
     const properties: Record<string, any> = {};
@@ -26,6 +34,7 @@ function jsonSchemaFromZod(schema: z.ZodTypeAny): any {
   return { type: 'object', properties: {} };
 }
 
+// read_file: direct file read (no size / encoding safeguards for brevity)
 export const readFileTool: Tool<typeof ReadFileInputSchema> = {
   name: 'read_file',
   description: 'Read the contents of a given relative file path. Use this when you want to see what\'s inside a file. Do not use this with directory names.',
@@ -36,6 +45,7 @@ export const readFileTool: Tool<typeof ReadFileInputSchema> = {
   }
 };
 
+// list_files: shallow listing of given directory (non-recursive beyond first level)
 export const listFilesTool: Tool<typeof ListFilesInputSchema> = {
   name: 'list_files',
   description: 'List files and directories at a given path. If no path is provided, lists files in the current directory.',
@@ -43,7 +53,7 @@ export const listFilesTool: Tool<typeof ListFilesInputSchema> = {
   execute: ({ path: p }) => {
     const dir = p && p.length ? p : '.';
     const entries: string[] = [];
-    function walk(current: string, root: string) {
+  function walk(current: string, root: string) {
       const stats = fs.statSync(current);
       if (!stats.isDirectory()) return;
       for (const e of fs.readdirSync(current)) {
@@ -62,6 +72,8 @@ export const listFilesTool: Tool<typeof ListFilesInputSchema> = {
   }
 };
 
+// edit_file: emulate article's string substitution editing strategy.
+// If old_str is empty and file doesn't exist, create file with new_str content.
 export const editFileTool: Tool<typeof EditFileInputSchema> = {
   name: 'edit_file',
   description: `Make edits to a text file.\n\nReplaces 'old_str' with 'new_str' in the given file. 'old_str' and 'new_str' MUST be different from each other.\n\nIf the file specified with path doesn't exist, it will be created.`,
@@ -91,6 +103,7 @@ function ensureDir(dir: string) {
   fs.mkdirSync(dir, { recursive: true });
 }
 
+// Convert internal Tool representation to Anthropic tool schema structure.
 export function toAnthropicTool(tool: Tool) {
   return {
     name: tool.name,
@@ -99,4 +112,5 @@ export function toAnthropicTool(tool: Tool) {
   } as const;
 }
 
+// Export default tool registry used by Agent if none supplied
 export const defaultTools: Tool[] = [readFileTool, listFilesTool, editFileTool];
