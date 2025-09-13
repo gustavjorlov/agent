@@ -7,7 +7,8 @@
 //  - Continue loop until user interrupts (Ctrl-C)
 import Anthropic from "@anthropic-ai/sdk";
 import readline from "node:readline";
-import { defaultTools, toAnthropicTool, Tool } from "./tools.js";
+import { defaultTools, toAnthropicTool } from "./tools.js";
+import type { Tool } from "./tool.js";
 import { z } from "zod";
 
 interface AgentOptions {

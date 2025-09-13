@@ -5,7 +5,7 @@
 // 2. Provide (lightweight) metadata we later transform to Anthropic tool JSON schema
 // Keeping schemas here keeps tool code focused on behavior.
 import { z } from 'zod';
-import type { Tool } from './tools.js';
+import type { Tool } from './tool.js';
 
 // ToolExecutionResult represents what we send back to Claude after running a tool.
 // (Currently unused directly—agent builds the structure inline—but kept for clarity/extension.)
