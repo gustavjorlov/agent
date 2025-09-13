@@ -7,6 +7,8 @@
 //  - Continue loop until user interrupts (Ctrl-C)
 import Anthropic from "@anthropic-ai/sdk";
 import readline from "node:readline";
+import fs from "node:fs";
+import path from "node:path";
 import { defaultTools, toAnthropicTool } from "./tools.js";
 import type { Tool } from "./tool.js";
 import { z } from "zod";
@@ -58,6 +60,8 @@ export class Agent {
     console.log("Chat with Claude (ctrl-c to quit)");
     const conversation: ConversationMessage[] = [];
 
+    const writeSnapshot = this.createSessionLogger(conversation);
+
     let readUserInput = true;
     while (true) {
       if (readUserInput) {
@@ -68,11 +72,13 @@ export class Agent {
           role: "user",
           content: [{ type: "text", text: userInput }],
         });
+        writeSnapshot();
       }
 
       // Perform inference with accumulated conversation (stateless API requires full replay)
       const message = await this.infer(conversation);
       conversation.push({ role: "assistant", content: message.content });
+      writeSnapshot();
 
       const toolResults: any[] = [];
       for (const block of message.content) {
@@ -100,6 +106,7 @@ export class Agent {
       // Tools used -> feed results back immediately (no new user input yet)
       readUserInput = false;
       conversation.push({ role: "user", content: toolResults });
+      writeSnapshot();
     }
   }
 
@@ -140,6 +147,42 @@ export class Agent {
     } catch (e: any) {
       // Surface error text back to model so it can decide to retry / adapt
       return { result: e.message, isError: true };
+    }
+  }
+
+  // Initialize a session log file and return a closure that overwrites it with
+  // the latest conversation snapshot when invoked.
+  private createSessionLogger(conversation: ConversationMessage[]) {
+    try {
+      const sessionDir = path.resolve(process.cwd(), ".agent");
+      if (!fs.existsSync(sessionDir))
+        fs.mkdirSync(sessionDir, { recursive: true });
+      const ts = new Date();
+      const pad = (n: number) => n.toString().padStart(2, "0");
+      const sessionName = `session-${ts.getFullYear()}${pad(
+        ts.getMonth() + 1
+      )}${pad(ts.getDate())}-${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(
+        ts.getSeconds()
+      )}.json`;
+      const sessionPath = path.join(sessionDir, sessionName);
+      return () => {
+        try {
+          const snapshot = {
+            model: this.model,
+            maxTokens: this.maxTokens,
+            createdAt: new Date().toISOString(),
+            messages: conversation,
+          };
+          fs.writeFileSync(
+            sessionPath,
+            JSON.stringify(snapshot, null, 2),
+            "utf8"
+          );
+        } catch {}
+      };
+    } catch {
+      // If initialization fails, return a no-op to avoid breaking chat.
+      return () => {};
     }
   }
 }

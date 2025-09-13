@@ -7,7 +7,9 @@
     "build": "tsc -p .",
     "start": "node --env-file=.env dist/index.js",
     "dev": "tsx src/index.ts",
-    "typecheck": "tsc -p . --noEmit"
+  "typecheck": "tsc -p . --noEmit",
+  "test": "vitest run",
+  "test:watch": "vitest"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.62.0",
@@ -17,6 +19,7 @@
     "tsx": "^4.19.0",
     "typescript": "^5.5.4",
     "@types/node": "^20.14.10",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+  "vitest": "^3.2.4"
   }
 }
