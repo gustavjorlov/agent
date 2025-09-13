@@ -1,0 +1,22 @@
+{
+  "name": "code-editing-agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p .",
+    "start": "node --env-file=.env dist/index.js",
+    "dev": "tsx src/index.ts",
+    "typecheck": "tsc -p . --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "0.62.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4",
+    "@types/node": "^20.14.10",
+    "zod": "^3.23.8"
+  }
+}
