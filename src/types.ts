@@ -50,3 +50,11 @@ export const WebSearchInputSchema = z.object({
   url: z.string().url().describe('The full URL (http/https) to fetch and return raw HTML for.')
 });
 export type WebSearchInput = z.infer<typeof WebSearchInputSchema>;
+
+// run_shell_command tool input: command + args (array as JSON string for simplicity or a single string?)
+// We'll accept a command and a space-joined args string to keep the simple string-only JSON schema mapping used earlier.
+export const RunShellCommandInputSchema = z.object({
+  cmd: z.string().min(1).describe('Whitelisted binary name to execute'),
+  args: z.string().optional().describe('Optional space-separated arguments passed to the command')
+});
+export type RunShellCommandInput = z.infer<typeof RunShellCommandInputSchema>;
