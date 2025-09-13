@@ -12,6 +12,8 @@ import { editFileTool } from "./tools/editFileTool.js";
 import { createFileTool } from "./tools/createFileTool.js";
 import { webSearchTool } from "./tools/webSearchTool.js";
 import { runShellCommandTool } from "./tools/runShellCommandTool.js";
+import { gitAddTool } from "./tools/gitAddTool.js";
+import { gitCommitTool } from "./tools/gitCommitTool.js";
 import { Tool } from "./tool.js";
 
 function jsonSchemaFromZod(schema: z.ZodTypeAny): any {
@@ -48,4 +50,6 @@ export const defaultTools: Tool[] = [
   createFileTool,
   webSearchTool,
   runShellCommandTool,
+  gitAddTool,
+  gitCommitTool,
 ];

@@ -69,3 +69,15 @@ export const CreateFileInputSchema = z.object({
     .describe('If true and file exists, overwrite it. Default: false (error if exists).')
 });
 export type CreateFileInput = z.infer<typeof CreateFileInputSchema>;
+
+// git_add tool input: path(s) to stage for commit
+export const GitAddInputSchema = z.object({
+  paths: z.string().min(1).describe('Space-separated paths to add to the git staging area (e.g. "file1.js file2.js" or "." for all)')
+});
+export type GitAddInput = z.infer<typeof GitAddInputSchema>;
+
+// git_commit tool input: commit message
+export const GitCommitInputSchema = z.object({
+  message: z.string().min(1).describe('The commit message')
+});
+export type GitCommitInput = z.infer<typeof GitCommitInputSchema>;
