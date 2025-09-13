@@ -14,6 +14,11 @@ import { webSearchTool } from "./tools/webSearchTool.js";
 import { runShellCommandTool } from "./tools/runShellCommandTool.js";
 import { gitAddTool } from "./tools/gitAddTool.js";
 import { gitCommitTool } from "./tools/gitCommitTool.js";
+import { gitStatusTool } from "./tools/gitStatusTool.js";
+import { gitLogTool } from "./tools/gitLogTool.js";
+import { gitBranchTool } from "./tools/gitBranchTool.js";
+import { gitMergeTool } from "./tools/gitMergeTool.js";
+import { gitPullTool } from "./tools/gitPullTool.js";
 import { Tool } from "./tool.js";
 
 function jsonSchemaFromZod(schema: z.ZodTypeAny): any {
@@ -52,4 +57,9 @@ export const defaultTools: Tool[] = [
   runShellCommandTool,
   gitAddTool,
   gitCommitTool,
+  gitStatusTool,
+  gitLogTool,
+  gitBranchTool,
+  gitMergeTool,
+  gitPullTool,
 ];

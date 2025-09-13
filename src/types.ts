@@ -81,3 +81,42 @@ export const GitCommitInputSchema = z.object({
   message: z.string().min(1).describe('The commit message')
 });
 export type GitCommitInput = z.infer<typeof GitCommitInputSchema>;
+
+// git_status tool input: optional porcelain flag
+export const GitStatusInputSchema = z.object({
+  porcelain: z.boolean().optional().describe('If true, use --porcelain for parseable output')
+});
+export type GitStatusInput = z.infer<typeof GitStatusInputSchema>;
+
+// git_log tool input: optional limit and pretty flag
+export const GitLogInputSchema = z.object({
+  limit: z.string().optional().describe('Optional max number of commits to show (e.g. "20")'),
+  oneline: z.boolean().optional().describe('If true, use --oneline summary format')
+});
+export type GitLogInput = z.infer<typeof GitLogInputSchema>;
+
+// git_branch tool input: mode determines action
+export const GitBranchInputSchema = z.object({
+  action: z
+    .string()
+    .describe('Action to perform: list | create | checkout'),
+  name: z
+    .string()
+    .optional()
+    .describe('Branch name (required for create / checkout)')
+});
+export type GitBranchInput = z.infer<typeof GitBranchInputSchema>;
+
+// git_merge tool input: source branch to merge into current
+export const GitMergeInputSchema = z.object({
+  source: z.string().min(1).describe('The branch name to merge into the current branch'),
+  no_ff: z.boolean().optional().describe('If true, use --no-ff to force a merge commit')
+});
+export type GitMergeInput = z.infer<typeof GitMergeInputSchema>;
+
+// git_pull tool input: optional remote & branch
+export const GitPullInputSchema = z.object({
+  remote: z.string().optional().describe('Remote name (default origin)'),
+  branch: z.string().optional().describe('Branch name (defaults to current tracking branch)')
+});
+export type GitPullInput = z.infer<typeof GitPullInputSchema>;
