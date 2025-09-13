@@ -44,3 +44,9 @@ export const EditFileInputSchema = z.object({
   new_str: z.string().describe('Text to replace old_str with')
 });
 export type EditFileInput = z.infer<typeof EditFileInputSchema>;
+
+// web_search tool input: a single URL
+export const WebSearchInputSchema = z.object({
+  url: z.string().url().describe('The full URL (http/https) to fetch and return raw HTML for.')
+});
+export type WebSearchInput = z.infer<typeof WebSearchInputSchema>;

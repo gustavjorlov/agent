@@ -9,6 +9,7 @@ import { z } from "zod";
 import { readFileTool } from "./tools/readFileTool.js";
 import { listFilesTool } from "./tools/listFilesTool.js";
 import { editFileTool } from "./tools/editFileTool.js";
+import { webSearchTool } from "./tools/webSearchTool.js";
 import { Tool } from "./tool.js";
 
 function jsonSchemaFromZod(schema: z.ZodTypeAny): any {
@@ -38,4 +39,4 @@ export function toAnthropicTool(tool: Tool) {
 }
 
 // Export default tool registry used by Agent if none supplied
-export const defaultTools: Tool[] = [readFileTool, listFilesTool, editFileTool];
+export const defaultTools: Tool[] = [readFileTool, listFilesTool, editFileTool, webSearchTool];
