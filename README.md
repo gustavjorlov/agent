@@ -5,13 +5,23 @@ Coding agent that doesn't stop and ask for permissions, it goes on until the tas
 Implements:
 - Chat loop with Claude
 - Tool definitions sent via Messages API
-- Six tools:
-  - `read_file`: Read the contents of a specified file
-  - `list_files`: List files and directories at a given path
-  - `edit_file`: Make edits to a text file via string replacement
-  - `create_file`: Create a new text file with provided content
-  - `web_search`: Fetch a URL and return the HTML/text response
-  - `run_shell_command`: Execute whitelisted shell commands
+- Twelve tools:
+  - File Operations:
+    - `read_file`: Read the contents of a specified file
+    - `list_files`: List files and directories at a given path
+    - `edit_file`: Make edits to a text file via string replacement
+    - `create_file`: Create a new text file with provided content
+  - Web & System:
+    - `web_search`: Fetch a URL and return the HTML/text response
+    - `run_shell_command`: Execute whitelisted shell commands
+  - Git Version Control:
+    - `git_add`: Add file(s) to the git staging area
+    - `git_commit`: Commit staged changes with a message
+    - `git_status`: Show working tree status
+    - `git_log`: Show commit history
+    - `git_branch`: List, create, or checkout branches
+    - `git_merge`: Merge a branch into the current branch
+    - `git_pull`: Pull latest changes from a remote
 
 ## Setup
 
@@ -49,8 +59,13 @@ Examples:
 - "Create fizzbuzz.js that prints FizzBuzz to 100"
 - "Edit fizzbuzz.js so it only prints to 15"
 - "Fetch the HTML from example.com and summarize it"
-- "Run 'git status' and explain the output"
 - "Create a new directory called 'examples' with a README file"
+- Git Operations:
+  - "Show me the git status and explain what's changed"
+  - "Add all files and commit with a message 'Initial implementation'"
+  - "Create a new feature branch and switch to it"
+  - "Show me the recent commit history"
+  - "Merge the feature branch into main"
 
 ## Notes
 - Minimal JSON schema translation from Zod (enough for the demo)
