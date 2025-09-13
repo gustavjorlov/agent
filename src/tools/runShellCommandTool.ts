@@ -17,6 +17,7 @@ const WHITELIST = new Set([
   "npm",
   "npx",
   "git",
+  "touch",
 ]);
 
 // Execute a command safely within current workspace directory tree.
