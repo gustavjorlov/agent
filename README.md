@@ -1,7 +1,6 @@
 # Code Editing Agent (TypeScript)
 
-A translation of the "How to Build an Agent" article's Go example into a Node.js + TypeScript project using the official Anthropic TypeScript SDK.
-
+Coding agent that doesn't stop and ask for permissions, it goes on until the task is done 😎
 Implements:
 - Chat loop with Claude
 - Tool definitions sent via Messages API
