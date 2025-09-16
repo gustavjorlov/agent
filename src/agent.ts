@@ -9,6 +9,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import readline from "node:readline";
 import fs from "node:fs";
 import path from "node:path";
+import { initProjectSessionDir, writeSessionSnapshot } from './sessionStore.js';
 import { defaultTools, toAnthropicTool } from "./tools.js";
 import type { Tool } from "./tool.js";
 import { z } from "zod";
@@ -60,7 +61,22 @@ export class Agent {
     console.log("Chat with Claude (ctrl-c to quit)");
     const conversation: ConversationMessage[] = [];
 
-    const writeSnapshot = this.createSessionLogger(conversation);
+    // Initialize centralized session storage (may migrate legacy local sessions)
+    const { migratedCount } = initProjectSessionDir(process.cwd());
+    if (migratedCount > 0) {
+      console.warn(`[info] Migrated ${migratedCount} legacy session file(s) to centralized store.`);
+    }
+    const writeSnapshot = () => {
+      try {
+        const snapshot = {
+          model: this.model,
+          maxTokens: this.maxTokens,
+          createdAt: new Date().toISOString(),
+          messages: conversation,
+        };
+        writeSessionSnapshot(process.cwd(), snapshot as any);
+      } catch {}
+    };
 
     let readUserInput = true;
     while (true) {
@@ -150,39 +166,5 @@ export class Agent {
     }
   }
 
-  // Initialize a session log file and return a closure that overwrites it with
-  // the latest conversation snapshot when invoked.
-  private createSessionLogger(conversation: ConversationMessage[]) {
-    try {
-      const sessionDir = path.resolve(process.cwd(), ".agent");
-      if (!fs.existsSync(sessionDir))
-        fs.mkdirSync(sessionDir, { recursive: true });
-      const ts = new Date();
-      const pad = (n: number) => n.toString().padStart(2, "0");
-      const sessionName = `session-${ts.getFullYear()}${pad(
-        ts.getMonth() + 1
-      )}${pad(ts.getDate())}-${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(
-        ts.getSeconds()
-      )}.json`;
-      const sessionPath = path.join(sessionDir, sessionName);
-      return () => {
-        try {
-          const snapshot = {
-            model: this.model,
-            maxTokens: this.maxTokens,
-            createdAt: new Date().toISOString(),
-            messages: conversation,
-          };
-          fs.writeFileSync(
-            sessionPath,
-            JSON.stringify(snapshot, null, 2),
-            "utf8"
-          );
-        } catch {}
-      };
-    } catch {
-      // If initialization fails, return a no-op to avoid breaking chat.
-      return () => {};
-    }
-  }
+  // Legacy createSessionLogger removed (centralized session store now used)
 }

@@ -184,6 +184,8 @@ Completion Criteria for Prerequisite:
 
 After this prerequisite is merged, implement the `agent session list` command to consume the new structure.
 
+Runtime note: On first run after upgrading, if legacy `./.agent/session-*.json` files are detected they will be migrated automatically to the centralized store with a one-line notice. New sessions are no longer written to the project-local `.agent` folder.
+
 ## CLI (npx) Usage
 This project can be invoked directly without cloning once published:
 
