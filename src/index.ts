@@ -1,22 +1,16 @@
 // index.ts
 // Entry point: loads env, constructs Agent with configured model & runs loop.
 // Mirrors the Go main.go in the article.
-import 'dotenv/config';
+// Refactored: export a function that runs the agent given a config object.
+// Environment loading & validation now happen in the CLI layer (src/cli.ts).
 import { Agent } from './agent.js';
 
-const model = process.env.MODEL || 'claude-3-7-sonnet-20250219';
-const maxTokens = parseInt(process.env.MAX_TOKENS || '1024', 10);
-
-async function main() {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    console.error('Missing ANTHROPIC_API_KEY in environment');
-    process.exit(1);
-  }
-  const agent = new Agent({ model, maxTokens });
-  await agent.run();
+export interface RunAgentConfig {
+  model: string;
+  maxTokens: number;
 }
 
-main().catch(err => {
-  console.error(err);
-  process.exit(1);
-});
+export async function runAgent(cfg: RunAgentConfig) {
+  const agent = new Agent({ model: cfg.model, maxTokens: cfg.maxTokens });
+  await agent.run();
+}

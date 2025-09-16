@@ -1,15 +1,25 @@
 {
-  "name": "code-editing-agent",
+  "name": "@gustavjorlov/agent",
   "version": "0.1.0",
-  "private": true,
   "type": "module",
   "scripts": {
     "build": "tsc -p .",
     "start": "node --env-file=.env dist/index.js",
-    "dev": "tsx src/index.ts",
-  "typecheck": "tsc -p . --noEmit",
-  "test": "vitest run",
-  "test:watch": "vitest"
+    "dev": "tsx src/cli.ts",
+    "typecheck": "tsc -p . --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "bin": {
+    "agent": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.62.0",
@@ -20,6 +30,6 @@
     "typescript": "^5.5.4",
     "@types/node": "^20.14.10",
     "zod": "^3.23.8",
-  "vitest": "^3.2.4"
+    "vitest": "^3.2.4"
   }
 }

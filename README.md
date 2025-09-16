@@ -82,3 +82,40 @@ Examples:
 - Add more whitelisted shell commands
 - Implement rate limiting for web requests
 - Support binary file handling
+
+## CLI (npx) Usage
+This project can be invoked directly without cloning once published:
+
+```
+npx @gustavjorlov/agent --help
+```
+
+### Configuration Locations (precedence highest last)
+1. Legacy project `.env` (deprecated – warning emitted)
+2. User config directory: `~/.config/agent/config.env` or `config.json`
+3. Local `.agent.env`
+4. `AGENT_CONFIG` environment variable pointing to a file
+5. `--config /path/to/file` (highest)
+
+Create a user config quickly:
+```
+npx @gustavjorlov/agent init
+```
+Then edit `~/.config/agent/config.env`:
+```
+ANTHROPIC_API_KEY=sk-your-key
+MODEL=claude-3-7-sonnet-20250219
+MAX_TOKENS=1024
+```
+
+Run the chat:
+```
+npx @gustavjorlov/agent
+```
+
+Override model ad-hoc:
+```
+npx @gustavjorlov/agent --config ./my-session.env
+```
+
+The binary name when linked locally is `agent` (e.g. after `npm link`).
