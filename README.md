@@ -41,7 +41,7 @@ Implements:
     - `edit_file`: Make edits to a text file via string replacement
     - `create_file`: Create a new text file with provided content
   - Web & System:
-    - `web_search`: Fetch a URL and return the HTML/text response
+    - `url_fetch`: Fetch the contents of a URL (HTTP/HTTPS) and return raw text/HTML (10s timeout)
     - `run_shell_command`: Execute whitelisted shell commands
   - Git Version Control:
     - `git_add`: Add file(s) to the git staging area
@@ -101,7 +101,7 @@ Examples:
 - Tool execution results are returned as `tool_result` blocks
 - `edit_file` uses simple string replacement mirroring the article's approach
 - `run_shell_command` only allows whitelisted commands (ls, cat, echo, grep, head, tail, node, tsc, npm, npx, git, touch)
-- `web_search` fetches raw HTML/text from URLs with a 10-second timeout
+- `url_fetch` fetches raw HTML/text from URLs with a 10-second timeout
 - `create_file` can overwrite existing files when the overwrite flag is set to true
 
 ## Future Enhancements

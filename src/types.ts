@@ -45,7 +45,7 @@ export const EditFileInputSchema = z.object({
 });
 export type EditFileInput = z.infer<typeof EditFileInputSchema>;
 
-// web_search tool input: a single URL
+// url_fetch tool input: a single URL (schema name kept for backward compatibility)
 export const WebSearchInputSchema = z.object({
   url: z.string().url().describe('The full URL (http/https) to fetch and return raw HTML for.')
 });

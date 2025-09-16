@@ -10,7 +10,7 @@ import { readFileTool } from "./tools/readFileTool.js";
 import { listFilesTool } from "./tools/listFilesTool.js";
 import { editFileTool } from "./tools/editFileTool.js";
 import { createFileTool } from "./tools/createFileTool.js";
-import { webSearchTool } from "./tools/webSearchTool.js";
+import { urlFetchTool } from "./tools/urlFetchTool.js";
 import { runShellCommandTool } from "./tools/runShellCommandTool.js";
 import { gitAddTool } from "./tools/gitAddTool.js";
 import { gitCommitTool } from "./tools/gitCommitTool.js";
@@ -53,7 +53,7 @@ export const defaultTools: Tool[] = [
   listFilesTool,
   editFileTool,
   createFileTool,
-  webSearchTool,
+  urlFetchTool,
   runShellCommandTool,
   gitAddTool,
   gitCommitTool,
