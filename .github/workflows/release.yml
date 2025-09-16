@@ -1,0 +1,99 @@
+name: CI & Publish
+
+on:
+  push:
+    branches: [ main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-test-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Determine previous version
+        id: prev
+        run: |
+          git fetch --tags --force
+          if git describe --tags --abbrev=0 >/dev/null 2>&1; then
+            PREV_TAG=$(git describe --tags --abbrev=0)
+            echo "prev_tag=$PREV_TAG" >> $GITHUB_OUTPUT
+            # strip leading v if present
+            STRIPPED=${PREV_TAG#v}
+            echo "prev_version=$STRIPPED" >> $GITHUB_OUTPUT
+          else
+            echo "prev_tag=" >> $GITHUB_OUTPUT
+            echo "prev_version=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Read current package version
+        id: pkg
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Decide publish
+        id: decide
+        run: |
+          CURR=${{ steps.pkg.outputs.version }}
+          PREV=${{ steps.prev.outputs.prev_version }}
+          echo "Current version: $CURR"
+          if [ -z "$PREV" ]; then
+            echo "No previous tag -> will publish"; echo "publish=true" >> $GITHUB_OUTPUT; exit 0; fi
+          if [ "$CURR" = "$PREV" ]; then
+            echo "Version unchanged ($CURR). Skipping publish."; echo "publish=false" >> $GITHUB_OUTPUT; exit 0; fi
+          echo "Version changed ($PREV -> $CURR). Will publish."; echo "publish=true" >> $GITHUB_OUTPUT
+
+      - name: Configure npm auth
+        if: steps.decide.outputs.publish == 'true'
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish
+        if: steps.decide.outputs.publish == 'true'
+        run: |
+          npm publish
+
+      - name: Create tag
+        if: steps.decide.outputs.publish == 'true'
+        run: |
+          VERSION=${{ steps.pkg.outputs.version }}
+          git tag v$VERSION
+          git push origin v$VERSION
+
+      - name: Summary
+        run: |
+          echo "Version: ${{ steps.pkg.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "Previous: ${{ steps.prev.outputs.prev_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "Publish: ${{ steps.decide.outputs.publish }}" >> $GITHUB_STEP_SUMMARY
+
+# Notes:
+# - Set repo secret NPM_TOKEN with an npm token that has publish rights for @gustavjorlov scope.
+# - Workflow publishes only when package.json version differs from latest git tag version (tag format vX.Y.Z).
