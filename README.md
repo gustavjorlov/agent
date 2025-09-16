@@ -112,6 +112,78 @@ Examples:
 - Implement rate limiting for web requests
 - Support binary file handling
 
+## Roadmap / Phases
+
+This section outlines upcoming structured phases. (Numbering starts at the next significant feature batch.)
+
+### Phase 3: Session Management & Listing
+Goal: Introduce `agent session list` / future resume capabilities. Prerequisite: centralize session storage.
+
+#### Prerequisite: Centralize Session JSON Storage
+Currently session snapshots are written to a per-project hidden directory: `./.agent/session-*.json`.
+We will migrate to a unified user-level storage alongside config (e.g. `~/.config/agent` on macOS/Linux, `%APPDATA%/agent` on Windows) while still keeping sessions segregated per original working directory.
+
+Structure (proposed):
+```
+~/.config/agent/
+  config.env
+  sessions/
+    projects/
+      <project-slug>/
+        meta.json            # { cwd, slug, hash, createdAt, updatedAt, migrated }
+        session-YYYYMMDD-HHMMSS.json
+```
+
+Project slug derivation:
+1. Resolve absolute path of the CWD when the agent starts.
+2. Compute `hash = sha256(realpath).hex.slice(0,10)`.
+3. Sanitize `basename(realpath)` → lowercase alphanumerics + `-`.
+4. Slug format: `<sanitized-basename>-<hash>` (ensures uniqueness even for folders with same name).
+
+Rationale:
+- Enables global listing across projects without scanning the whole filesystem.
+- Avoids leaking full paths in directory names (privacy) while still being human friendly.
+- Stable & deterministic for resume / indexing.
+
+Environment override (optional):
+- `AGENT_SESSION_DIR` → if set, supersedes default `sessions/` root (useful for testing).
+
+API / Code Changes (planned):
+1. Add util `getSessionProjectDir(cwd)` in a new `sessionStore.ts`.
+2. Replace `createSessionLogger` in `agent.ts` to write into project dir; create if missing.
+3. Write / update `meta.json` on first session write or when `cwd` changes.
+4. (Optional early) Maintain a lightweight project-level `index.json` summarizing sessions (id, createdAt, file path) to speed up listing.
+5. Add migration routine: if `./.agent/session-*.json` exists and target project dir is empty, copy files over, set `migrated: true` in `meta.json`, optionally leave originals (first release) then remove in later version.
+
+Session File Naming (unchanged):
+`session-YYYYMMDD-HHMMSS.json` (keeps chronological sorting). Potential later enhancement: append incremental counter if multiple in same second.
+
+Edge Cases Considered:
+- Permissions: ensure `sessions/projects/<slug>` is `0700` (POSIX) if created; warn if broader.
+- Concurrency: if multiple agent processes start simultaneously, create dir with `recursive: true`; writing distinct filenames avoids collisions. (Future: file locking for index maintenance.)
+- Very large number of sessions: listing will first read filenames; only parse `meta.json` + maybe first N session files for summary.
+- Path changes (project moved): if `cwd` hash differs, a new slug is created; old slug remains intact (explicit resume may later allow re-link).
+
+Listing Command (Phase 3 proper):
+- `agent session list` (future) will enumerate `sessions/projects/*/*session-*.json`, building a table: Project Name, Sessions, Last Activity, Path (from meta.json `cwd`).
+- Filtering by current project: only show sessions whose `meta.json.cwd` matches the resolved current path hash.
+
+Migration Strategy:
+1. Ship code that writes ONLY to new location but also (temporarily) copies to legacy `./.agent` for one minor version (optional) OR
+2. On start, detect legacy sessions → migrate forward → print one-line notice with count migrated.
+Chosen approach: forward migration on demand (no dual writes) to keep logic simple.
+
+Telemetry / Privacy (future consideration):
+- No extra data beyond existing messages; meta only stores original absolute `cwd` for local listing (never transmitted externally).
+
+Completion Criteria for Prerequisite:
+- New sessions appear under user config dir with correct project slug.
+- Running agent twice in same directory appends new session files to same slug.
+- Legacy `./.agent` no longer receives new writes (post-migration).
+- README updated; warning printed once if legacy sessions migrated.
+
+After this prerequisite is merged, implement the `agent session list` command to consume the new structure.
+
 ## CLI (npx) Usage
 This project can be invoked directly without cloning once published:
 
