@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p .",
-    "start": "node --env-file=.env dist/index.js",
+    "start": "npm run build --silent && node dist/src/cli.js",
+    "start:env": "npm run build --silent && node --env-file=.env dist/src/cli.js",
     "dev": "tsx src/cli.ts",
     "typecheck": "tsc -p . --noEmit",
     "test": "vitest run",
