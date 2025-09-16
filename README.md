@@ -119,3 +119,56 @@ npx @gustavjorlov/agent --config ./my-session.env
 ```
 
 The binary name when linked locally is `agent` (e.g. after `npm link`).
+
+Deprecated notice: Root `.env` support will be removed after version 0.3.0. Migrate to `~/.config/agent/config.env`, `.agent.env`, or use `--config`.
+
+## Publish Checklist (npm)
+Follow these steps to publish `@gustavjorlov/agent` correctly:
+
+1. Clean state
+  - Ensure working tree is clean: `git status` (no unstaged/staged changes you don't intend to publish)
+  - Run tests: `npm test` (all green)
+  - Run type check: `npm run typecheck`
+
+2. Version bump
+  - Decide semantic version (patch/ minor/ major)
+  - Update `version` in `package.json`
+  - Commit: `git commit -am "chore: bump version to x.y.z"`
+
+3. Build
+  - Run `npm run build`
+  - Confirm `dist/cli.js` exists and begins with `#!/usr/bin/env node`
+
+4. Pack dry-run
+  - Run `npm pack` (outputs a tarball like `gustavjorlov-agent-x.y.z.tgz`)
+  - Inspect contents: `tar -tf <tarball> | grep cli.js` (should include `dist/cli.js`)
+  - Optional smoke test: `npx ./<tarball> --help`
+
+5. First-time publish (already configured)
+  - If first ever: `npm publish --access public`
+  - Otherwise: `npm publish`
+
+6. Verify
+  - `npm view @gustavjorlov/agent version`
+  - `npx @gustavjorlov/agent --version` (should match)
+
+7. Tag & push (optional but recommended)
+  - `git tag vx.y.z`
+  - `git push --tags`
+
+8. Post-publish tasks
+  - Update CHANGELOG (if maintained)
+  - Announce deprecation timeline for root `.env` if nearing v0.3.0
+  - Monitor first runs for user feedback
+
+9. If a mistake happens
+  - Unpublish within 72h (avoid unless critical): `npm unpublish @gustavjorlov/agent@x.y.z`
+  - Or deprecate: `npm deprecate @gustavjorlov/agent@x.y.z "Message"`
+
+Quick minimal publish path (after version bump & tests pass):
+```
+npm run build
+npm publish
+```
+
+Always prefer the full checklist for reliability.

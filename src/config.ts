@@ -16,9 +16,9 @@ export interface LoadedConfig {
   model: string;
   maxTokens: number;
   apiKey?: string; // ANTHROPIC_API_KEY
-  // Add additional config keys here as needed.
   sourceSummary: string[]; // trace of which layers contributed
   warnings: string[];
+  keySources: Record<string,string>; // which layer supplied each key
 }
 
 interface LoadOptions {
@@ -75,11 +75,13 @@ export function loadConfig(opts: LoadOptions): LoadedConfig {
   const sourceSummary: string[] = [];
   const warnings: string[] = [];
   const merged: Record<string,string> = {};
+  const keySources: Record<string,string> = {};
 
   function merge(obj: Record<string,string>, label: string) {
     let contributed = false;
     for (const [k,v] of Object.entries(obj)) {
       merged[k] = v; // later overrides earlier
+      keySources[k] = label;
       contributed = true;
     }
     if (contributed) sourceSummary.push(label);
@@ -94,8 +96,24 @@ export function loadConfig(opts: LoadOptions): LoadedConfig {
   }
   // User config dir
   const userDir = getUserConfigDir();
-  merge(loadConfigFile(path.join(userDir, 'config.env')), `user:${path.join(userDir, 'config.env')}`);
-  merge(loadConfigFile(path.join(userDir, 'config.json')), `user:${path.join(userDir, 'config.json')}`);
+  const userEnvPath = path.join(userDir, 'config.env');
+  const userJsonPath = path.join(userDir, 'config.json');
+  merge(loadConfigFile(userEnvPath), `user:${userEnvPath}`);
+  merge(loadConfigFile(userJsonPath), `user:${userJsonPath}`);
+  // Basic permission check (POSIX only)
+  try {
+    if (process.platform !== 'win32') {
+      for (const p of [userEnvPath, userJsonPath]) {
+        if (fs.existsSync(p)) {
+          const mode = fs.statSync(p).mode & 0o777;
+            // Warn if group or others have write permission
+            if ((mode & 0o022) !== 0) {
+              warnings.push(`Config file ${p} is group/other writable (mode ${mode.toString(8)}). Consider chmod 600.`);
+            }
+        }
+      }
+    }
+  } catch {}
   // Local .agent.env
   merge(loadConfigFile(path.resolve('.agent.env')), '.agent.env');
   // AGENT_CONFIG path
@@ -117,5 +135,5 @@ export function loadConfig(opts: LoadOptions): LoadedConfig {
     warnings.push('Missing ANTHROPIC_API_KEY (required).');
   }
 
-  return { model, maxTokens, apiKey, sourceSummary, warnings };
+  return { model, maxTokens, apiKey, sourceSummary, warnings, keySources };
 }

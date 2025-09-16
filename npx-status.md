@@ -22,5 +22,13 @@ Phase 3 (future):
 - Prune conversation history or provide transcript export command
 - Optional: switch to an argument parsing library if complexity grows
 
+## Phase 2 Tasks (in progress)
+- [x] Verbose flag to display resolved config + sources
+- [x] Track per-key source & permission warnings
+- [x] Precedence layering tests (AGENT_CONFIG, .agent.env, legacy, explicit)
+- [x] Key source mapping test
+- [x] Permission warning test
+- [x] Help/deprecation messaging update
+
 Notes:
 - Initial code loads dotenv inside `index.ts`; refactor will remove side-effect import there and shift env loading to CLI/config layer.

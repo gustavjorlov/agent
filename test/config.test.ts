@@ -38,4 +38,47 @@ describe('config precedence', () => {
       }
     });
   });
+
+  it('AGENT_CONFIG overrides .agent.env and user config but not explicit', () => {
+    withTempDir(tmp => {
+      const userDir = path.join(tmp, '.config', 'agent');
+      fs.mkdirSync(userDir, { recursive: true });
+      fs.writeFileSync(path.join(userDir, 'config.env'), 'MODEL=user-model');
+      fs.writeFileSync(path.join(tmp, '.agent.env'), 'MODEL=agent-env-model');
+      const custom = path.join(tmp, 'custom.env');
+      fs.writeFileSync(custom, 'MODEL=custom-model');
+      const prevHome = process.env.HOME;
+      const prevCwd = process.cwd();
+      process.env.HOME = tmp; // redirect getUserConfigDir
+      process.env.AGENT_CONFIG = custom;
+      process.chdir(tmp);
+      try {
+        const cfg = loadConfig({ env: process.env as any });
+        expect(cfg.model).toBe('custom-model');
+      } finally {
+        process.chdir(prevCwd);
+        if (prevHome) process.env.HOME = prevHome; else delete process.env.HOME;
+        delete process.env.AGENT_CONFIG;
+      }
+    });
+  });
+});
+
+describe('permission warnings', () => {
+  it('warns on world-writable user config file', () => {
+    withTempDir(tmp => {
+      const userDir = path.join(tmp, '.config', 'agent');
+      fs.mkdirSync(userDir, { recursive: true });
+      const cfgPath = path.join(userDir, 'config.env');
+      fs.writeFileSync(cfgPath, 'MODEL=perm-model');
+      try { fs.chmodSync(cfgPath, 0o666); } catch {}
+      const prevHome = process.env.HOME;
+      process.env.HOME = tmp;
+      const cfg = loadConfig({ env: process.env as any });
+      if (process.platform !== 'win32') {
+        expect(cfg.warnings.some(w => w.includes('group/other writable'))).toBe(true);
+      }
+      if (prevHome) process.env.HOME = prevHome; else delete process.env.HOME;
+    });
+  });
 });

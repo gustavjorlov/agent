@@ -8,6 +8,7 @@ interface ParsedArgs {
   version?: boolean;
   configPath?: string;
   init?: boolean;
+  verbose?: boolean;
 }
 
 function parseArgs(argv: string[]): ParsedArgs {
@@ -19,12 +20,13 @@ function parseArgs(argv: string[]): ParsedArgs {
     else if (a === 'init') out.init = true;
     else if (a === '--config') out.configPath = argv[++i];
     else if (a.startsWith('--config=')) out.configPath = a.split('=')[1];
+  else if (a === '--verbose') out.verbose = true;
   }
   return out;
 }
 
 function printHelp() {
-  console.log(`Usage: npx @gustavjorlov/agent [options] [init]\n\nOptions:\n  --help, -h        Show help\n  --version, -v     Show version\n  --config <path>   Specify config file (.env or .json)\n\nCommands:\n  init              Create a user config directory & sample config file\n`);
+  console.log(`Usage: npx @gustavjorlov/agent [options] [init]\n\nOptions:\n  --help, -h          Show help\n  --version, -v       Show version\n  --config <path>     Specify config file (.env or .json)\n  --verbose           Print resolved configuration & source list (no secrets)\n\nCommands:\n  init                Create a user config directory & sample config file\n\nConfig Precedence (lowest to highest):\n  legacy .env (deprecated) -> user config -> .agent.env -> AGENT_CONFIG path -> --config path\n`);
 }
 
 async function ensureInit(): Promise<void> {
@@ -66,6 +68,17 @@ async function main() {
   const loaded = loadConfig({ explicitPath: args.configPath, env: process.env });
   if (loaded.warnings.length) {
     for (const w of loaded.warnings) console.warn('[warn]', w);
+  }
+  if (args.verbose) {
+    console.log('Config sources (in merge order):');
+    for (const s of loaded.sourceSummary) console.log(' -', s);
+    const safe: Record<string, string> = {};
+    for (const [k,v] of Object.entries(loaded.keySources)) {
+      if (k.toUpperCase().includes('KEY') || k.toUpperCase().includes('SECRET')) continue; // avoid echoing secrets
+      safe[k] = loaded.keySources[k];
+    }
+    console.log('Key sources:', safe);
+    console.log('Resolved model:', loaded.model, 'maxTokens:', loaded.maxTokens);
   }
   if (!loaded.apiKey) {
     console.error('Cannot continue: missing ANTHROPIC_API_KEY. Use `init` or supply a config.');
