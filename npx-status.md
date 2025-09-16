@@ -22,6 +22,10 @@ Phase 3 (future):
 - Prune conversation history or provide transcript export command
 - Optional: switch to an argument parsing library if complexity grows
 
+### Recent Fixes
+- Promoted `zod` to runtime dependency (was causing ERR_MODULE_NOT_FOUND in tarball smoke test).
+- Added version fallback to use `process.env.npm_package_version` when JSON assert import fails in packed execution.
+
 ## Phase 2 Tasks (in progress)
 - [x] Verbose flag to display resolved config + sources
 - [x] Track per-key source & permission warnings

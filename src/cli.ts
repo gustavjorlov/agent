@@ -54,9 +54,9 @@ async function main() {
     try {
       const mod: any = await import('../package.json', { assert: { type: 'json' } } as any);
       const pkg = mod.default || mod;
-      console.log(pkg.version || 'unknown');
+  console.log(pkg.version || process.env.npm_package_version || 'unknown');
     } catch {
-      console.log('unknown');
+  console.log(process.env.npm_package_version || 'unknown');
     }
     return;
   }

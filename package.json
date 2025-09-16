@@ -12,7 +12,7 @@
     "prepublishOnly": "npm run build"
   },
   "bin": {
-    "agent": "dist/cli.js"
+    "agent": "dist/src/cli.js"
   },
   "files": [
     "dist",
@@ -23,13 +23,13 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.62.0",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "tsx": "^4.19.0",
     "typescript": "^5.5.4",
     "@types/node": "^20.14.10",
-    "zod": "^3.23.8",
     "vitest": "^3.2.4"
   }
 }

@@ -137,12 +137,13 @@ Follow these steps to publish `@gustavjorlov/agent` correctly:
 
 3. Build
   - Run `npm run build`
-  - Confirm `dist/cli.js` exists and begins with `#!/usr/bin/env node`
+  - Confirm `dist/src/cli.js` exists and begins with `#!/usr/bin/env node`
 
 4. Pack dry-run
   - Run `npm pack` (outputs a tarball like `gustavjorlov-agent-x.y.z.tgz`)
-  - Inspect contents: `tar -tf <tarball> | grep cli.js` (should include `dist/cli.js`)
+  - Inspect contents: `tar -tf <tarball> | grep dist/src/cli.js` (should include `dist/src/cli.js`)
   - Optional smoke test: `npx ./<tarball> --help`
+  - Version check: `npx ./<tarball> --version` should print the package version (fallback uses npm env var if JSON import fails)
 
 5. First-time publish (already configured)
   - If first ever: `npm publish --access public`
