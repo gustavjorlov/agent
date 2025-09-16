@@ -1,5 +1,34 @@
 # Code Editing Agent (TypeScript)
 
+> Quick Start (no clone required)
+>
+> 1. Run the agent immediately:
+>    ```
+>    npx @gustavjorlov/agent
+>    ```
+> 2. When prompted (or if it errors about a missing key), create a user config:
+>    ```
+>    npx @gustavjorlov/agent init
+>    ```
+> 3. Open the created file `~/.config/agent/config.env` (on macOS/Linux) and add your Anthropic API key:
+>    ```
+>    ANTHROPIC_API_KEY=sk-your-key
+>    MODEL=claude-3-7-sonnet-20250219
+>    MAX_TOKENS=1024
+>    ```
+>    (On Windows the directory is usually `%APPDATA%/agent/config.env`.)
+> 4. Re-run:
+>    ```
+>    npx @gustavjorlov/agent
+>    ```
+> 5. Optional: show help / sources:
+>    ```
+>    npx @gustavjorlov/agent --help
+>    npx @gustavjorlov/agent --verbose
+>    ```
+>
+> You only need to set the key once; future runs will pick it up automatically.
+
 Coding agent that doesn't stop and ask for permissions, it goes on until the task is done 😎
 
 Implements:
@@ -23,7 +52,7 @@ Implements:
     - `git_merge`: Merge a branch into the current branch
     - `git_pull`: Pull latest changes from a remote
 
-## Setup
+## Dev Setup
 
 1. Install dependencies:
 
